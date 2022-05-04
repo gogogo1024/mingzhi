@@ -1,0 +1,2 @@
+export const CAT_BRANDS = 'CAT_BRANDS';
+export const CAT_CONNECTIONS = 'CAT_CONNECTIONS';
