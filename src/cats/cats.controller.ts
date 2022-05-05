@@ -30,6 +30,7 @@ import { UpdateCatDto } from './dto/update-cat.dto';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { REQUEST } from '@nestjs/core';
 import { Public } from 'src/common/decorators/public.decorator';
+import { Protocol } from 'src/common/decorators/protocol.decorator';
 
 @UsePipes(ValidationPipe)
 @Controller('cats')
@@ -80,8 +81,14 @@ export class CatsController {
 
   @Public()
   @Get()
-  async findAll(@Query() paginationQuery: PaginationQueryDto) {
+  async findAll(
+    @Protocol() protocol: string,
+    @Query() paginationQuery: PaginationQueryDto,
+  ) {
+    console.log(protocol);
+    // 模拟请求耗时，用来测试timeout拦截器的效果
     await new Promise((resolve) => setTimeout(resolve, 5000));
+
     const cats = await this.catsService.findAll(paginationQuery);
     return cats;
   }

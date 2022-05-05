@@ -43,8 +43,10 @@ $ npm run test:cov
 - `nest g filter common/filters/http-exception` //创建 filter http-exception
 - `nest g guard common/guards/api-key` //创建 guard api-key
 - `nest g mo common` //创建 common 公共模块
-- `nest g interceptor common/interceptors/wrap-response` //创建 wrap-response
-- `nest g interceptor common/interceptors/timeout` //创建 common 公共模块
+- `nest g interceptor common/interceptors/wrap-response` //创建 wrap-response 拦截器公共模块
+- `nest g interceptor common/interceptors/timeout` //创建 timeout 拦截器公共模块
+- `nest g pipe common/pipe/parse-int` //创建 parse-int 管道公共模块，目前 nestjs 8.2.5 已经内置了 ParseIntPipe 这类工具
+- `nest g middleware common/middleware/logging` //创建 logging 公共模块
 
 - exception filter
 - pipes
