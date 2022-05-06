@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { CatsModule } from 'src/cats/cats.module';
-import { DatabaseModule } from 'src/database/database.module';
+import { CatsModule } from '../cats/cats.module';
+import { DatabaseModule } from '../database/database.module';
 import { CatRatingService } from './cat-rating.service';
 
 @Module({

@@ -16,11 +16,13 @@ export class CatsService {
   constructor(
     @InjectRepository(Cat)
     private readonly catRepository: Repository<Cat>,
+
     @InjectRepository(Flavor)
     private readonly flavorRepository: Repository<Flavor>,
 
     private readonly connection: Connection, // deprecated
     // private readonly configService: ConfigService, // deprecated
+
     // 为了使用catsConfiguration能够有智能提示
     @Inject(catsConfig.KEY)
     private readonly catsConfiguration: ConfigType<typeof catsConfig>,
@@ -93,22 +95,24 @@ export class CatsService {
     return await this.flavorRepository.create({ name });
   }
 
-  async recommendCat(cat: Cat) {
+  async recommendCat(cat: any) {
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      cat.recommendations++;
+      // cat.recommendations++;
       const recommendEvent = new Event();
       recommendEvent.name = 'recommendation_cat';
       recommendEvent.type = 'cat';
-      recommendEvent.payload = { catId: cat.id };
-      await queryRunner.manager.save(cat);
+
+      const newCat = await queryRunner.manager.save(Cat, { ...cat });
+      recommendEvent.payload = { catId: newCat.id };
       await queryRunner.manager.save(recommendEvent);
 
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
+      throw new Error('transaction error');
     } finally {
       await queryRunner.release();
     }

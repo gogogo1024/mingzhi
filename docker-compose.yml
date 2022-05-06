@@ -6,6 +6,48 @@ services:
       restart: always
       ports:
         - "5432:5432"
-
       environment:
         POSTGRES_PASSWORD: pass123
+  test-db:
+      image: postgres
+      restart: always
+      ports:
+        - "5433:5432"
+      environment:
+        POSTGRES_PASSWORD: pass123
+  # mongodb:
+  #     image: mongo
+  #     restart: always
+  #     ports:
+  #       - 27017:27017
+  #     environment:
+  #         MONGODB_DATABASE: nest-course
+  mongo0:
+      image: mongo:latest
+      hostname: mongo0
+      ports:
+      - 27017:27017
+      command: mongod --replSet tiny --port 27017
+      depends_on:
+        - mongo1
+        - mongo2
+      environment:
+        MONGODB_DATABASE: nest-course
+
+  mongo1:
+    image: mongo:latest
+    hostname: mongo1
+    ports:
+      - 27018:27018
+    command: mongod --replSet tiny --port 27018
+    environment:
+        MONGODB_DATABASE: nest-course    
+
+  mongo2:
+    image: mongo:latest
+    hostname: mongo2
+    ports:
+      - 27019:27019
+    command: mongod --replSet tiny --port 27019      
+    environment:
+        MONGODB_DATABASE: nest-course

@@ -43,7 +43,7 @@ export class CatBrandsFactory {
         return cn;
       },
       inject: [Connection],
-      scope: Scope.TRANSIENT,
+      // scope: Scope.TRANSIENT,
     },
   ],
   exports: [CatsService],

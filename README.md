@@ -36,7 +36,7 @@ $ npm run test:cov
 
 - `docker-compose up -d //项目中docker-compose.yml文件用来启动pg数据库`
 
-- `nest g class cats/entities/flavor.entity --no-spec //创建flavor表`
+- `nest g class cats/entities/flavor.entity --no-spec //创建flavor表，--no-spec代表无测试文件`
 - `nest g class common/dto/pagination-query.dto --no-spec //创建pagination分页实体类`
 - `nest g class events/entities/event.entity --no-spec //创建event表`
 - `npx typeorm migration:create CatRefactor` //创建 migration 记录
@@ -57,3 +57,11 @@ $ npm run test:cov
 - controller
 - method
 - param
+- jest 集成还是有点问题
+
+- 配合 docker-compose.yml 文件中的 mongo 的 hostname
+- 进入任意一个 mongo 容器中，目前这些容器都在一个主机网络中 `db = (new Mongo('localhost:27017')).getDB('test')`
+- `config = { _id: 'tiny', members: [ { _id: 0, host: 'mongo0:27017', }, { _id: 1, host: 'mongo1:27018', }, { _id: 2, host: 'mongo2:27019', }, ], }`
+- `rs.initiate(config)`
+- `127.0.0.1 mongo0 127.0.0.1 mongo1 127.0.0.1 mongo2` // 修改本地的 host 文件，让本地应用的 mongodb 连接副本集能够正常连接
+- `依次ping mongo0,ping mongo1,ping mongo2` //测试上一步的 host 设置是否成功

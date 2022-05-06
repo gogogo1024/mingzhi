@@ -9,30 +9,33 @@ import {
   Inject,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
-  Put,
   Query,
   Redirect,
   Res,
-  SetMetadata,
   UseFilters,
   UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CreateCatDto } from './dto/create-cat.dto';
 import { CatsService } from './cats.service';
 import { Cat } from './interfaces/cat.interface';
-import { HttpExceptionFilter } from 'src/common/filter/http-exception.filter';
-import { ValidationPipe } from 'src/common/pipe/validation.pipe';
+
+import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
+import { CustomValidationPipe } from '../common/pipe/custom-validation.pipe';
 
 import { Response } from 'express';
 import { DeleteCatDto } from './dto/delete-cat.dto';
 import { UpdateCatDto } from './dto/update-cat.dto';
-import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { REQUEST } from '@nestjs/core';
-import { Public } from 'src/common/decorators/public.decorator';
-import { Protocol } from 'src/common/decorators/protocol.decorator';
+import { Public } from '../common/decorators/public.decorator';
+import { Protocol } from '../common/decorators/protocol.decorator';
+import { ApiForbiddenResponse, ApiTags } from '@nestjs/swagger';
 
-@UsePipes(ValidationPipe)
+@ApiTags('cats')
+// @UsePipes(CustomValidationPipe)
 @Controller('cats')
 export class CatsController {
   constructor(private catsService: CatsService) {
@@ -41,7 +44,7 @@ export class CatsController {
 
   // @Post()
   // @HttpCode(204)
-  // async create(@Body(new ValidationPipe()) createCatDto: CreateCatDto) {
+  // async create(@Body(new  CustomValidationPipe()) createCatDto: CreateCatDto) {
   //   console.log(createCatDto);
   //   return 'This action adds a new cat';
   // }
@@ -52,18 +55,6 @@ export class CatsController {
     const cat = await this.catsService.create(createCatDto);
     return cat;
   }
-
-  // @Get(':id')
-  // async findOne(
-  //   @Param(
-  //     'id',
-  //     new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE }),
-  //   )
-  //   id: number,
-  // ) {
-  //   const cat = await this.catsService.findOne(id);
-  //   return cat;
-  // }
 
   @Get(':id')
   async findOne(
@@ -79,21 +70,23 @@ export class CatsController {
     return res.status(HttpStatus.OK).json(cat);
   }
 
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   @Public()
   @Get()
+  // @UsePipes(new ValidationPipe({ transform: true }))
   async findAll(
     @Protocol() protocol: string,
     @Query() paginationQuery: PaginationQueryDto,
   ) {
     console.log(protocol);
     // 模拟请求耗时，用来测试timeout拦截器的效果
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const cats = await this.catsService.findAll(paginationQuery);
     return cats;
   }
 
-  @Put(':id')
+  @Patch(':id')
   async update(@Param('id') id: number, @Body() updateCatDto: UpdateCatDto) {
     console.log(typeof id);
     const cat = await this.catsService.update(id, updateCatDto);
@@ -105,6 +98,12 @@ export class CatsController {
     return `This action removes a #${deleteCatDto.id} cat`;
   }
 
+  @Post('/transaction')
+  async recommendCat(@Body() createCatDto: any) {
+    await this.catsService.recommendCat(createCatDto);
+    return `This  transaction successful`;
+  }
+
   @Get('/redirect')
   @Redirect('https://nestjs.com', 301)
   async redirectOtherUrl() {
@@ -112,14 +111,5 @@ export class CatsController {
       url: 'http://pronhub.com',
       statusCode: 301,
     };
-  }
-
-  @Get('/nothing')
-  //尽可能使用类而不是实例来应用过滤器。它减少了内存使用，因为 Nest 可以轻松地在整个模块中重用同一类的实例。
-  // @UseFilters(new HttpExceptionFilter())
-  @UseFilters(HttpExceptionFilter)
-  async findNothing() {
-    ForbiddenException;
-    throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
   }
 }

@@ -19,7 +19,7 @@ export class HttpExceptionFilter<T extends HttpException>
     const exceptionResponse = exception.getResponse();
 
     const error =
-      typeof response === 'string'
+      typeof exceptionResponse === 'string'
         ? { message: exceptionResponse }
         : (exceptionResponse as object);
 

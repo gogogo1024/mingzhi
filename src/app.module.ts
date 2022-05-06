@@ -1,10 +1,4 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -12,10 +6,10 @@ import { CatsModule } from './cats/cats.module';
 import { CatRatingModule } from './cat-rating/cat-rating.module';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
-import * as Joi from '@hapi/joi';
 import appConfig from './config/app.config';
-import { APP_PIPE } from '@nestjs/core/constants';
 import { CommonModule } from './common/common.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { DogsModule } from './dogs/dogs.module';
 @Module({
   imports: [
     // TypeOrmModule.forRoot({
@@ -28,7 +22,6 @@ import { CommonModule } from './common/common.module';
     //   autoLoadEntities: true,
     //   synchronize: true,
     // }),
-
     //load config after every module register in application is resolved
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
@@ -42,6 +35,10 @@ import { CommonModule } from './common/common.module';
         synchronize: true,
       }),
     }),
+    MongooseModule.forRoot(
+      'mongodb://localhost:27017,localhost:27018,localhost:27019/nest-course?replicaSet=tiny',
+      // 'mongodb://localhost:27017/nest-course',
+    ),
     ConfigModule.forRoot({
       load: [appConfig],
       // validationSchema: Joi.object({
@@ -53,14 +50,16 @@ import { CommonModule } from './common/common.module';
     CatRatingModule,
     DatabaseModule,
     CommonModule,
+    DogsModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
-    {
-      provide: APP_PIPE,
-      useClass: ValidationPipe,
-    },
+    // 默认transform是false，会导致pagination中string不能转换为number
+    // {
+    //   provide: APP_PIPE,
+    //   useClass: ValidationPipe,
+    // },
   ],
 })
 export class AppModule {}
