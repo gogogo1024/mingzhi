@@ -1,4 +1,4 @@
-# nestjs project MINGZHI
+# project based on nestjs
 
 ## Installation
 

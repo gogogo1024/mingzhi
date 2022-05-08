@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
-import { Address } from 'src/addresses/entities/address.entity';
+import { Address } from '../addresses/entities/address.entity';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { CreateDogDto } from './dto/create-dog.dto';
 import { Dog } from './entities/dog.entity';
@@ -51,38 +51,37 @@ export class DogsService {
   async recommendAddress(dog: Dog) {
     const session = await this.connection.startSession();
     session.startTransaction();
-    try {
-      const dgM = new this.dogModel(dog);
-      const newDog = await dgM.save({ session });
+    // const transactionOptions = {
+    //   readPreference: 'primary',
+    //   readConcern: { level: 'local' },
+    //   writeConcern: { w: 'majority' },
+    // };
 
-      const recommendAddress = new this.addressModel({
-        name: 'recommend_dog',
-        type: 'address',
-        payload: { dogId: newDog.id },
-      });
-      await recommendAddress.save({ session });
-      await session.commitTransaction();
+    try {
+      await session.withTransaction(
+        async () => {
+          const dgM = new this.dogModel(dog);
+          const newDog = await dgM.save({ session });
+
+          const recommendAddress = new this.addressModel({
+            name: 'recommend_dog',
+            type: 'address',
+            payload: { dogId: newDog.id },
+          });
+          await recommendAddress.save({ session });
+          // await session.commitTransaction();
+        },
+        {
+          readConcern: { level: 'majority' },
+          writeConcern: { w: 'majority' },
+          /** A default read preference for commands in this transaction */
+        },
+      );
     } catch (error) {
       await session.abortTransaction();
     } finally {
       session.endSession();
+      await this.connection.close();
     }
-    // config = {
-    //   _id: 'tiny',
-    //   members: [
-    //     {
-    //       _id: 0,
-    //       host: 'mongo0:27017',
-    //     },
-    //     {
-    //       _id: 1,
-    //       host: 'mongo1:27018',
-    //     },
-    //     {
-    //       _id: 2,
-    //       host: 'mongo2:27019',
-    //     },
-    //   ],
-    // }
   }
 }

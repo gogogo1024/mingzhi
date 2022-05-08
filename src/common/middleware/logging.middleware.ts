@@ -4,9 +4,11 @@ import { Request, Response } from 'express';
 export class LoggingMiddleware implements NestMiddleware {
   // 默认命令行生成 res,res都为any
   use(req: Request, res: Response, next: () => void) {
-    console.log(`Hi from middleware`);
+    // console.log(`Hi from middleware`);
     console.time('Request-response time');
-    res.on('finish', () => console.timeEnd('Request-response time'));
+    console.timeLog('Request-response time');
+    // res.on('finish', () => console.timeEnd('Request-response time'));
     next();
+    // console.timeEnd('Request-response time');
   }
 }

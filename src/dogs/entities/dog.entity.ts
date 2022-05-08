@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 @Schema()
 export class Dog extends Document {
-  @Prop()
+  @Prop({ index: true })
   name: string;
   @Prop()
   type: string;

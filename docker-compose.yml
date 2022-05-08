@@ -24,6 +24,7 @@ services:
   #         MONGODB_DATABASE: nest-course
   mongo0:
       image: mongo:latest
+      restart: always
       hostname: mongo0
       ports:
       - 27017:27017
@@ -36,6 +37,7 @@ services:
 
   mongo1:
     image: mongo:latest
+    restart: always
     hostname: mongo1
     ports:
       - 27018:27018
@@ -45,6 +47,7 @@ services:
 
   mongo2:
     image: mongo:latest
+    restart: always
     hostname: mongo2
     ports:
       - 27019:27019

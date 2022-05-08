@@ -5,7 +5,7 @@ export class Address {
   @Prop()
   type: string;
 
-  @Prop()
+  @Prop({ index: true })
   name: string;
 
   @Prop({ type: mongoose.SchemaTypes.Mixed, default: {} })
@@ -13,3 +13,4 @@ export class Address {
 }
 
 export const AddressSchema = SchemaFactory.createForClass(Address);
+AddressSchema.index({ name: 1, type: -1 });
